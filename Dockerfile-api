@@ -1,0 +1,15 @@
+FROM sagacify/saga-predictor-base-image:v34
+
+COPY requirements-api.txt /www/app/requirements.txt
+COPY model /www/app/src/model
+COPY src/helpers /www/app/src/helpers
+COPY src/resources/predictor.py /www/app/src/resources/predictor.py
+RUN rm -rf /www/app/test
+COPY test /www/app/test
+
+WORKDIR /www/app
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+CMD ["python", "-m", "src"]

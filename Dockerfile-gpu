@@ -1,0 +1,7 @@
+FROM sagacify/docker-base-tensorflow-gpu-image:v21
+
+WORKDIR /home/jovyan
+
+ADD requirements-gpu.txt /home/jovyan/requirements.txt
+
+RUN pip3.6 install -r requirements.txt

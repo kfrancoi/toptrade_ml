@@ -1,0 +1,59 @@
+# Created by https://www.gitignore.io/api/visualstudiocode
+# Edit at https://www.gitignore.io/?templates=visualstudiocode
+
+### VisualStudioCode ###
+
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/sftp.json
+*.code-workspace
+sync.sh
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+# End of https://www.gitignore.io/api/visualstudiocode
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+.keras
+.cache
+.ipython
+.local
+.config
+.bash_history
+.ftpconfig
+.ftpignore
+
+# Jupyter Notebook
+.ipynb_checkpoints
+.ipython
+.local
+.jupyter
+.config
+.python_history
+*_out.ipynb
+
+# Data
+data/processed/*
+!data/processed/.gitkeep
+data/raw/*
+!data/raw/.gitkeep
+data/resources/*
+!data/resources/.gitkeep
+data/saved/*
+!data/saved/.gitkeep
+data/experiments/*
+!data/experiments/.gitkeep
+
+# Model
+model/*
+!model/.gitkeep
+
+# Env file
+.env

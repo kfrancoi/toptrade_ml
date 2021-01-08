@@ -1,0 +1,61 @@
+version: "2.3"
+
+services:
+  notebooks:
+    build:
+      context: .
+    command: start.sh jupyter lab
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config:/home/jovyan/config
+      - /media/data/kfrancoi/toptrade_ml:/home/jovyan/data
+      - ./notebooks:/home/jovyan/notebooks
+      - ./src:/home/jovyan/src
+      - ./notebooks/start.sh:/usr/local/bin/start-notebook.sh
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      S3_BUCKET: toptrade-bucket
+
+  gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile-gpu
+    runtime: nvidia
+    volumes:
+      - ./config:/home/jovyan/config
+      - /media/data/kfrancoi/toptrade_ml:/home/jovyan/data
+      - ./src:/home/jovyan/src
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+    environment:
+      RUN_ENV: development
+      APP_PORT: 8080
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_REGION: ${AWS_REGION}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      LOGGER_REQUEST_ON: 'false'
+      LOGGER_SUCCESS_ON: 'false'
+      LOGGER_WORKER_ON: 'false'
+      S3_DATA_BUCKET: none
+      SQS_IN_QUEUE: none
+      SQS_OUT_QUEUE: none
+      SQS_VISIBILITY_TIMEOUT: 30
+      SQS_WAIT_TIME_SECONDS: 2
+      WORKER_ERROR_THROTTLING: 1000
+      WORKER_ON: 'false'
+      WORKER_POLL_THROTTLING: 1000
+      WORKER_PROCESS_THROTTLING: 0
+      WORKER_UPLOAD_S3: 'false'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./model:/www/app/src/model
+      - ./src/helpers:/www/app/src/helpers
+      - ./src/resources/predictor.py:/www/app/src/resources/predictor.py
+      - ./test:/www/app/test

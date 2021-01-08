@@ -1,0 +1,86 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.0
+
+jobs:
+  sonar:
+    docker:
+      - image: sagacify/docker-circle-ci2.0:v3
+    steps:
+      - checkout
+      - run:
+          name: Run sonar tests
+          command: |
+            wget https://raw.githubusercontent.com/Sagacify/ci-tools/master/run-sonar-v2.sh
+            bash ./run-sonar-v2.sh run
+  build:
+    parameters:
+      model_name:
+        type: string
+        default: ''
+      image_name:
+        type: string
+        default: ''
+    working_directory: /app
+    docker:
+      - image: sagacify/docker-circle-ci2.0:v3
+    steps:
+      - checkout
+      - run:
+          name: Retrieve last commit message
+          command: |
+            echo 'export GIT_COMMIT_DESC=$(git log --format=oneline -n 1 $CIRCLE_SHA1)' >> $BASH_ENV
+      - run:
+          name: Should build
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              if [[ $GIT_COMMIT_DESC != *"model-prod"* ]]; then
+                circleci step halt
+              fi
+            fi
+      - setup_remote_docker
+      - aws-s3/sync:
+          from: s3://toptrade-bucket/models/<< parameters.model_name >>_latest
+          to: model
+      - run:
+          name: Remove-volumes
+          command: |
+            wget https://raw.githubusercontent.com/Sagacify/ci-tools/master/remove-volumes.sh
+            chmod +x ./remove-volumes.sh
+            ./remove-volumes.sh > docker-compose.tests.yml
+      - run:
+          name: Docker login
+          command: |
+            echo "{\"https://index.docker.io/v1/\":{\"auth\":\"<AUTH>\",\"email\":\"<EMAIL>\"}}" | sed "s/<EMAIL>/$HUB_EMAIL/;s/<AUTH>/$HUB_AUTH/" > ~/.dockercfg
+      - run:
+          name: Build image
+          command: |
+            docker-compose -f docker-compose.tests.yml build << parameters.image_name >>
+      - run:
+          name: Run tests
+          command: |
+            docker-compose -f docker-compose.tests.yml run -e RUN_ENV=test << parameters.image_name >> pytest --cov=src --cov-report xml:coverage/cov.xml
+      - deploy:
+          name: Push application Docker image to hub
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker tag app_<< parameters.image_name >> sagacify/$CIRCLE_PROJECT_REPONAME:<< parameters.model_name >>-v$CIRCLE_BUILD_NUM
+              docker push sagacify/$CIRCLE_PROJECT_REPONAME
+            fi
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - sonar:
+          context: DockerHub
+      - build:
+          model_name: transformer
+          image_name: api
+          context: DockerHub
+          filters:
+            branches:
+              only:
+                - master
+                - /.*model-prod.*/

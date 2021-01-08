@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+flake8 = "*"
+flake8-docstrings = "*"
+black = "==19.3b0"
+pytest = "*"
+pytest-cov = "*"
+rope = "*"
+
+[packages]
+boto3 = "==1.4.4"
+botocore = "==1.5.0"
+pandas = "==0.22.0"
+sagaconfig = "==0.0.4"
+hyperopt = "==0.1.1"
+
+[requires]
+python_version = "3.6"

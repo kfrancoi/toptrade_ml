@@ -1,0 +1,10 @@
+boto3==1.4.4
+botocore==1.5.0
+pandas==0.22.0
+sagaconfig==0.0.4
+papermill
+
+tensorflow==2.0.0
+Tensorboard==2.0.0
+keras==2.3.0
+

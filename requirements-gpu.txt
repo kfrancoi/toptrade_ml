@@ -1,0 +1,8 @@
+pandas==0.22.0
+sagaconfig==0.0.4
+papermill
+
+tensorflow-gpu==2.0.0
+Tensorboard==2.0.0
+keras==2.3.0
+
