@@ -9,14 +9,11 @@ services:
       - "8888:8888"
     volumes:
       - ./config:/home/jovyan/config
-      - /media/data/kfrancoi/toptrade_ml:/home/jovyan/data
       - ./notebooks:/home/jovyan/notebooks
       - ./src:/home/jovyan/src
       - ./notebooks/start.sh:/usr/local/bin/start-notebook.sh
+      - ./data:/home/jovyan/data
     environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
       S3_BUCKET: toptrade-bucket
 
   gpu:
@@ -26,8 +23,10 @@ services:
     runtime: nvidia
     volumes:
       - ./config:/home/jovyan/config
-      - /media/data/kfrancoi/toptrade_ml:/home/jovyan/data
       - ./src:/home/jovyan/src
+      - ./data:/home/jovyan/data
+      - ./notebooks:/home/jovyan/notebooks
+      - ./notebooks/start.sh:/usr/local/bin/start-notebook.sh
 
   api:
     build:
